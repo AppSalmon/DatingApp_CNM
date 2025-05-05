@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Trò chuyện với {{ other_participant.username }} - Dating App{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        {% if other_participant.userprofile.avatar %}
+                            <img src="{{ other_participant.userprofile.avatar.url }}" alt="{{ other_participant.username }}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/40" alt="{{ other_participant.username }}" class="rounded-circle me-3">
+                        {% endif %}
+                        <h4 class="mb-0">{{ other_participant.username }}</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="messages-container" style="height: 400px; overflow-y: auto;">
+                        {% for message in messages %}
+                            <div class="message mb-3 {% if message.sender == request.user %}text-end{% endif %}">
+                                <div class="d-inline-block p-3 rounded {% if message.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}" style="max-width: 75%;">
+                                    {{ message.content }}
+                                    <div class="small {% if message.sender == request.user %}text-white-50{% else %}text-muted{% endif %}">
+                                        {{ message.created_at|time:"H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="text-center text-muted py-5">
+                                <p>Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <form method="post" class="message-form">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            {{ form.content }}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Gửi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tự động cuộn xuống tin nhắn mới nhất
+    document.addEventListener('DOMContentLoaded', function() {
+        const messagesContainer = document.querySelector('.messages-container');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+
+    // Cập nhật tin nhắn mới mỗi 5 giây
+    setInterval(function() {
+        const messagesContainer = document.querySelector('.messages-container');
+        const scrollPosition = messagesContainer.scrollTop + messagesContainer.clientHeight;
+        const isScrolledToBottom = scrollPosition >= messagesContainer.scrollHeight - 100;
+
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newMessages = doc.querySelector('.messages-container').innerHTML;
+                messagesContainer.innerHTML = newMessages;
+
+                if (isScrolledToBottom) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            });
+    }, 5000);
+</script>
+{% endblock %} 
