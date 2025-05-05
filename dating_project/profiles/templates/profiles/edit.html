@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Chỉnh sửa hồ sơ - LoveConnect{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-cog"></i> Cài đặt</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'account_settings' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user-cog"></i> Tài khoản
+                </a>
+                <a href="{% url 'profile_edit' %}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-edit"></i> Hồ sơ
+                </a>
+                <a href="{% url 'profile_images' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-images"></i> Ảnh hồ sơ
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-edit"></i> Chỉnh sửa hồ sơ</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_bio" class="form-label">Giới thiệu bản thân</label>
+                        {{ form.bio }}
+                        <div class="form-text">Hãy viết một vài điều về bạn để mọi người hiểu rõ hơn.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_interests" class="form-label">Sở thích</label>
+                        {{ form.interests }}
+                        <div class="form-text">Liệt kê những sở thích, đam mê của bạn.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_height" class="form-label">Chiều cao (cm)</label>
+                                {{ form.height }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id_profession" class="form-label">Nghề nghiệp</label>
+                                {{ form.profession }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_education" class="form-label">Học vấn</label>
+                        {{ form.education }}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
