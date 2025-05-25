@@ -1,0 +1,21 @@
+{%extends 'base_preregister.html'%} {% load static from static %} {%block page_title%}Dating App{%endblock%}
+{%block content%}
+
+<!--Index banner-->
+<section>
+    <div class="preregister-banner" style="background-image: url('{% static 'temp/banner.jpg'%}')"
+        class="jumbotron jumbotron-fluid">
+        <div class="standard-jumbotron-container container">
+            <h1 class="display-4">TÌM NỬA KIA CỦA BẠN</h1>
+            <p class="lead">“Tình yêu đích thực không phải là thứ ta vội vàng tìm kiếm, mà là điều đến khi ta đủ can đảm
+                sống thật với chính mình. Đó là khi hai tâm hồn gặp nhau, không vì thiếu thốn mà vì đủ đầy, không vì sợ
+                cô đơn mà vì chọn đồng hành.”</p>
+            <p class="lead">
+                <a class="btn standard-button btn-lg preregister-button" href="{% url 'register' %}"
+                    role="button">JOIN</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+{%endblock%}
