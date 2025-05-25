@@ -65,12 +65,38 @@ class Messages(models.Model):
 #         related_name="received_winks",  # Đổi related_name
 #         blank=False
 #     )
+
+# class Winks(models.Model):
+#     sender = models.ForeignKey(
+#         User, related_name='winks_sender', on_delete=models.CASCADE)
+#     receiver = models.OneToOneField(
+#         User, related_name='winks_receiver', on_delete=models.CASCADE)
+
+#     created_on = models.DateTimeField(auto_now_add=True)
+#     is_read = models.BooleanField(default=False)
+
+#     class Meta:
+#         verbose_name = "Wink"
+#         verbose_name_plural = "Winks"
+#         ordering = ['created_on']
+
+#     def __str__(self):
+#         return f"Wink from {self.sender.username} to {self.receiver.username} at {self.created_on}"
+
+
 class Winks(models.Model):
     sender = models.ForeignKey(
-        User, related_name='winks_sender', on_delete=models.CASCADE)
-    receiver = models.OneToOneField(
-        User, related_name='winks_receiver', on_delete=models.CASCADE)
-
+        User,
+        on_delete=models.CASCADE,
+        related_name="sent_winks",
+        blank=False
+    )
+    receiver = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="received_winks",  # Sửa từ winks_receiver thành received_winks
+        blank=False
+    )
     created_on = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
@@ -78,6 +104,7 @@ class Winks(models.Model):
         verbose_name = "Wink"
         verbose_name_plural = "Winks"
         ordering = ['created_on']
+        unique_together = ('sender', 'receiver')  # Đảm bảo mỗi cặp sender-receiver chỉ có một wink
 
     def __str__(self):
         return f"Wink from {self.sender.username} to {self.receiver.username} at {self.created_on}"

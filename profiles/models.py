@@ -182,7 +182,7 @@ class ProfileImage(models.Model):
         related_name="profile_images",  # Thêm related_name
         blank=False
     )
-    image = models.ImageField(upload_to=image_filename, blank=True)
+    image = models.ImageField(upload_to=image_filename, blank=True, default='avatars/default_avt.png')
     is_verified = models.CharField(choices=APPROVAL, default="TO_BE_APPROVED", max_length=14, blank=False)
 
     class Meta:

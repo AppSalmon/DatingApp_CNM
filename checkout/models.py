@@ -20,14 +20,14 @@ class Order(models.Model):
     postcode = models.CharField(max_length=20, blank=True)
     town_or_city = models.CharField(max_length=40, blank=False)
     street_address1 = models.CharField(max_length=40, blank=False)
-    street_address2 = models.CharField(max_length=40, blank=True)  # Đổi blank=True vì đây là địa chỉ phụ
+    street_address2 = models.CharField(max_length=40, blank=True)
     county = models.CharField(max_length=40, blank=False)
-    date = models.DateField(auto_now_add=True)  # Tự động thêm ngày tạo
+    date = models.DateField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Order"
         verbose_name_plural = "Orders"
-        ordering = ['-date']  # Sắp xếp theo ngày, mới nhất trước
+        ordering = ['-date']
 
     def __str__(self):
         return f"Order {self.id} - {self.full_name} - {self.date}"
@@ -36,8 +36,8 @@ class Order(models.Model):
 class Subscription(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,  # Thêm on_delete
-        related_name="subscriptions",  # Thêm related_name để truy vấn ngược
+        on_delete=models.CASCADE,
+        related_name="subscriptions",
         null=False,
         blank=False
     )

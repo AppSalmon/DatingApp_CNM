@@ -8,12 +8,11 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from .models import Profile, ProfileImage
 from chat.models import Conversations, Messages, Views
-import stripe
 from checkout.models import Subscription
-    
+
 """
-Function to check if member profiles matches with current user's sexuality (and 
-vice versa). This stops users from visiting profiles outside of their preferences
+Hàm kiểm tra xem hồ sơ thành viên có khớp với sở thích giới tính của người dùng hiện tại hay không.
+Ngăn người dùng truy cập hồ sơ không phù hợp với sở thích của họ.
 """
 def looking_for_check(request, user_one, user_two):
     if not user_one == user_two:
@@ -24,7 +23,7 @@ def looking_for_check(request, user_one, user_two):
             if not user_two.gender == "FEMALE":
                 return redirect(reverse('index'))
 
-# Return users height in feet and inches from form choices
+# Hàm trả về chiều cao theo định dạng feet và inches từ giá trị lựa chọn
 def height_choices(member_height):
     height = {
         "152.40": "5' 0",
@@ -51,112 +50,101 @@ def height_choices(member_height):
         "205.74":"6' 9",
         "208.28":"6' 10",
         "210.82":"6' 11"
-        }
-        
+    }
     return height[member_height]
 
-# URL to log user out
+# URL để đăng xuất người dùng
 @login_required
 def logout(request):
     auth.logout(request)
-    messages.success(request, "You have been logged out")
+    messages.success(request, "Bạn đã đăng xuất thành công")
     return redirect(reverse('preregister'))
 
-# URL to delete user
+# URL để xóa tài khoản người dùng
 @login_required
 def delete(request):
     try:
         user = User.objects.get(pk=request.user.id)
         user.delete()
-        messages.success(request, "Your account has been deleted") 
+        messages.success(request, "Tài khoản của bạn đã được xóa") 
     except:
-        messages.success(request, "Something went wrong. Please contact us for more information") 
-        
+        messages.success(request, "Có lỗi xảy ra. Vui lòng liên hệ chúng tôi để biết thêm chi tiết") 
     return redirect(reverse('preregister'))
 
-# Log in page
+# Trang đăng nhập
 def login(request):
-    # If user is already logged in
+    # Nếu người dùng đã đăng nhập, chuyển hướng về trang chủ
     if request.user.is_authenticated:
         return redirect(reverse('index'))
         
-    # If user submits log in form, try logging them in
+    # Nếu người dùng gửi form đăng nhập
     if request.method == "POST":
         login_form = UserLoginForm(request.POST)
         if login_form.is_valid():
             user = auth.authenticate(username=request.POST['username'], password=request.POST['password'])
             if user:
-                messages.success(request, "Logged in successfully")
+                messages.success(request, "Đăng nhập thành công")
                 auth.login(user=user, request=request)
                 return redirect(reverse('index'))
             else: 
-                messages.error(request, "Username or password incorrect")
+                messages.error(request, "Tên người dùng hoặc mật khẩu không đúng")
     else:
         login_form = UserLoginForm()
             
     context = {
-        'login_form':login_form
+        'login_form': login_form
     }
     return render(request, 'login.html', context)
     
-# Register a user account page
+# Trang đăng ký tài khoản
 def register(request):
-    # If user submits register form, try registering an account
+    # Nếu người dùng gửi form đăng ký
     if request.method == "POST":
         registration_form = UserRegistrationForm(request.POST)
-
         if registration_form.is_valid():
             registration_form.save()
-            
             user = auth.authenticate(username=request.POST['username'], password=request.POST['password1'])
-            
             if user:
-                messages.success(request, "Your account had been created")
+                messages.success(request, "Tài khoản của bạn đã được tạo")
                 auth.login(user=user, request=request)
                 return redirect(reverse('create_profile'))
             else:
-                messages.error(request, "We have been unable to create your account")
+                messages.error(request, "Không thể tạo tài khoản của bạn")
     else:
         registration_form = UserRegistrationForm()
         
-
     context = {
-        'registration_form':registration_form
+        'registration_form': registration_form
     }
     return render(request, 'register.html', context)
 
-# Page to create/edit a user profile
+# Trang tạo/chỉnh sửa hồ sơ người dùng
 @login_required  
 def create_profile(request):
     """
-    Create a formset to allow for multiple profile photos to be uploaded
-    Assistance from
-    https://stackoverflow.com/questions/34006994/how-to-upload-multiple-images-to-a-blog-post-in-django
+    Tạo formset để cho phép tải lên nhiều ảnh hồ sơ.
     """
     ImageFormSet = modelformset_factory(ProfileImage, form=ProfileImageForm, extra=6, max_num=6, help_texts=None)
     
-    # If user has submitted profile form
     if request.method == "POST":
         profile_form = ProfileForm(request.POST, instance=request.user.profile)
         image_form = ProfileImageForm(request.POST, request.FILES)
+        formset = ImageFormSet(request.POST, request.FILES, queryset=ProfileImage.objects.filter(user_id=request.user.id).all())
         
-        formset = ImageFormSet(request.POST, request.FILES,
-                              queryset=ProfileImage.objects.filter(user_id=request.user.id).all())
-        
-        # Update profile and change profile to 'to be approved'
+        # Cập nhật hồ sơ và đặt trạng thái là 'chờ phê duyệt'
         if profile_form.is_valid() and formset.is_valid():
             instance = profile_form.save(commit=False)
             instance.user_id = request.user.id
             instance.is_verified = 'TO BE APPROVED'
             instance.save()
             
-            # Get images requested to be deleted and delete them
+            # Xóa các ảnh được yêu cầu xóa
             deleted_images = request.POST.getlist('delete')
             for image in deleted_images:
                 if not image == "None":
                     ProfileImage.objects.get(pk=image).delete()
                     
-            # Save submitted images
+            # Lưu các ảnh được gửi lên
             for form in formset:
                 if form.is_valid() and form.has_changed():
                     instance_image = form.save(commit=False)
@@ -173,25 +161,46 @@ def create_profile(request):
         formset = ImageFormSet(queryset=ProfileImage.objects.filter(user_id=request.user.id).all(), initial=initial_images)
         
     context = {
-        'page_ref':'create_profile',
-        'profile_form':profile_form,
-        'image_form':image_form,
+        'page_ref': 'create_profile',
+        'profile_form': profile_form,
+        'image_form': image_form,
         'formset': formset
     }
-        
     return render(request, 'create-profile.html', context)    
 
-# Page to view a specific member profile
+# Trang xem hồ sơ của một thành viên
 @login_required 
 def member_profile(request, id):
+    """
+    Hiển thị hồ sơ của một thành viên và cho phép gửi tin nhắn (yêu cầu premium).
     
-    # Check is member if current user
-    member = User.objects.get(id=id)
+    Parameters:
+        request: HttpRequest object
+        id: ID của người dùng cần xem hồ sơ
+    
+    Returns:
+        Render template member.html với dữ liệu hồ sơ và form tin nhắn
+    """
+    # Lấy thông tin thành viên
+    # member = User.objects.get(id=id)
+    try:
+        member = User.objects.get(id=id)
+        print(f"Member: {member.username}, ID: {id}")  # Debug
+        images = member.profile_images.all()
+        print(f"Images for {member.username}: {[(img.image.url, img.is_verified) for img in images]}")  # Debug
+
+
+    except User.DoesNotExist:
+        messages.error(request, "Người dùng không tồn tại")
+        return redirect(reverse('index'))
+    
     height = height_choices(str(member.profile.height))
+    
+    # Kiểm tra xem thành viên có phải là người dùng hiện tại không
     if not member == request.user:
         current_user = False
         
-        # Redirect if sexuality preferences are not met
+        # Kiểm tra sở thích giới tính
         result = looking_for_check(request, request.user.profile, member.profile)
         if result:
             return result
@@ -199,54 +208,41 @@ def member_profile(request, id):
         if result:
             return result
         
-        # Add view if last view is not read or user hasn't viewed member before
+        # Thêm lượt xem nếu chưa xem hoặc lượt xem trước chưa được đọc
         last_view = Views.objects.filter(receiver_id=id).filter(sender_id=request.user.id).last()
         if not last_view or last_view.is_read:
             view = Views(receiver=member, sender=request.user)
             view.save()
         
-        # If user has submitted messages form
+        # Xử lý gửi tin nhắn
         if request.method == "POST" and 'message_submit' in request.POST:
             message_form = MessagesForm(request.POST)
             if message_form.is_valid():
-                # Check if user is premium
+                # Sửa đổi: Chỉ kiểm tra is_premium, không dùng Stripe
                 if request.user.profile.is_premium:
-                    customer_stripe_id = Subscription.objects.filter(user_id=request.user).first()
-                    customer = stripe.Customer.retrieve(customer_stripe_id.customer_id)
-                    for sub in customer.subscriptions:
-                        # If subscription is active or unpaid/cancelled but not yet inactive
-                        if sub.status == 'active' or sub.status == 'trialing' or sub.status == 'incomplete' or sub.status == 'past_due' or sub.status == 'canceled':
-                            # Create conversation (if one does not already exist) and message
-                            conversation = Conversations.objects.filter(participants=request.user.id).filter(participants=id)
-                            if conversation.exists():
-                                message = message_form.save(commit=False)
-                                message.sender = request.user
-                                message.receiver = User.objects.get(pk=id)
-                                message.conversation = conversation[0]
-                                message.save()
-                                return redirect('/chat/%s' % conversation[0].id )
-                            else:
-                                receiver = User.objects.get(pk=id)
-                                conversation = Conversations()
-                                conversation.save()
-                                conversation.participants.add(request.user.id)
-                                conversation.participants.add(receiver)
-                                message = message_form.save(commit=False)
-                                message.sender = request.user
-                                message.receiver = receiver
-                                message.conversation = conversation
-                                message.save()
-                                return redirect('/chat/%s' % conversation.id )
-                                
-                    """
-                    If user is premium, but does not have an active subscription
-                    update them to not be premium
-                    """
-                    current_user = User.objects.get(pk=request.user.id)
-                    current_user.is_premium = False
-                    current_user.save()
-                    return redirect(reverse('subscribe'))
+                    # Tạo hoặc lấy cuộc trò chuyện
+                    conversation = Conversations.objects.filter(participants=request.user.id).filter(participants=id)
+                    if conversation.exists():
+                        message = message_form.save(commit=False)
+                        message.sender = request.user
+                        message.receiver = User.objects.get(pk=id)
+                        message.conversation = conversation[0]
+                        message.save()
+                        return redirect('/chat/%s' % conversation[0].id)
+                    else:
+                        receiver = User.objects.get(pk=id)
+                        conversation = Conversations()
+                        conversation.save()
+                        conversation.participants.add(request.user.id)
+                        conversation.participants.add(receiver)
+                        message = message_form.save(commit=False)
+                        message.sender = request.user
+                        message.receiver = receiver
+                        message.conversation = conversation
+                        message.save()
+                        return redirect('/chat/%s' % conversation.id)
                 else:
+                    messages.error(request, "Bạn cần gói premium để gửi tin nhắn")
                     return redirect(reverse('subscribe'))
         else:
             message_form = MessagesForm()
@@ -257,13 +253,12 @@ def member_profile(request, id):
     context = {
         'height': height,
         'page_ref': 'member_profile',
-        'member':member,
+        'member': member,
         'message_form': message_form,
         'current_user': current_user
     }
     return render(request, 'member.html', context)
     
-# Page to display verification message
+# Trang hiển thị thông báo xác minh
 def verification_message(request):
-    
     return render(request, 'verification-message.html')
