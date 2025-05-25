@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Trang chủ{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+    .heading-hr {
+        text-align: center;
+        margin: 2rem 0;
+        color: #C71585;
+    }
+    .card-container {
+        margin-bottom: 1.5rem;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .card-img {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+    }
+    .username-container {
+        padding: 0.5rem;
+    }
+    .card-username {
+        font-weight: bold;
+        color: #C71585;
+    }
+    .card-age {
+        text-align: right;
+        color: #333;
+    }
+    .card-distance {
+        padding: 0 0.5rem;
+        color: #666;
+    }
+    .interaction-container {
+        padding: 0.5rem;
+        text-align: center;
+    }
+    .card-link {
+        color: #C71585;
+        text-decoration: none;
+    }
+    .card-link:hover {
+        color: #DA70D6;
+    }
+    .quick-match-container {
+        text-align: center;
+        margin: 2rem 0;
+    }
+    .quick-match-heading {
+        color: #C71585;
+        margin-bottom: 0.5rem;
+    }
+    .quick-match-subheading {
+        color: #666;
+        margin-bottom: 1rem;
+    }
+    .draggable-card {
+        position: relative;
+        z-index: 1;
+        margin: 0 auto;
+    }
+    .standard-button {
+        background-color: #C71585;
+        color: white;
+        padding: 0.75rem;
+        border-radius: 5px;
+    }
+    .standard-button:hover {
+        background-color: #DA70D6;
+    }
+</style>
+
+<!-- Send message form modal -->
+<div class="modal fade" id="message-modal" tabindex="-1" aria-labelledby="message-modal-title" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="card-container">
+                <div class="card-form card">
+                    <button type="button" class="close modal-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="card-form-container">
+                        <h3 class="card-modal-title">Gửi tin nhắn</h3>
+                        <hr>
+                        <p class="card-form-subtitle">Bắt đầu cuộc trò chuyện</p>
+                        <form class="standard-form not-profile-page-message-form" method="POST">
+                            {% csrf_token %}
+                            <input id="message-receiver-id" type="hidden" name="receiver_id" value="">
+                            <textarea cols="40" maxlength="500" rows="10" required id="message-input" name="message_content"></textarea>
+                            <input type="submit" class="submit-success" name="message_submit" value="Gửi" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profiles sorted by distance -->
+<div class="heading-hr"><span>GẦN BẠN NHẤT</span></div>
+<div class="container-fluid">
+    <div class="row">
+        {% for profile, image_url in closest_profiles %}
+        <div class="card-container col-sm-12 col-md-6 col-lg-3">
+            <div class="card four-cards">
+                <a class="card-link card-link-wrapper" href="{% url 'member_profile' profile.user.id %}">
+                    <div class="card-img four-cards" style="background-image: url({{ image_url }})"></div>
+                    <div class="row username-container">
+                        <p class="col-9 card-username">{{ profile.user.username }}</p>
+                        <p class="col-3 card-age">{{ profile.age }}</p>
+                    </div>
+                    <p class="card-distance">{% if profile.distance > 150 %}150KM+{% else %}{{ profile.distance|floatformat:"0" }}KM{% endif %} Away</p>
+                </a>
+                <div class="row interaction-container">
+                    <a class="card-link card-link-left" data-username="{{ profile.user.username }}" data-user-id="{{ profile.user.id }}"><i class="col-6 far fa-comment-alt grid-message"></i></a>
+                    <a class="card-link card-link-right" onclick="send_wink_grid_link({{ profile.user.id }})"><i class="col-6 far fa-smile-wink grid-wink"></i></a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p>Không tìm thấy hồ sơ gần bạn</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Swipe quick match section -->
+<div class="quick-match-container">
+    <div class="left-quick-match-message">
+        <div class="text">KÉO TRÁI ĐỂ BỎ QUA</div>
+    </div>
+    <div id="droppable-left" class="ui-widget-header"></div>
+    <h2 id="swipe-match-finder" class="quick-match-heading">TÌM KIẾM NHANH</h2>
+    <h3 class="quick-match-subheading">Tìm tình yêu một cách nhanh chóng và dễ dàng với công cụ tìm kiếm nhanh</h3>
+
+    <div class="card draggable-card draggable-reset-card" style="display: inline-block; position: absolute; z-index: 1; margin-left: -250px; margin-right: -250px; overflow: hidden">
+        <div>
+            {% if card_profiles_exists %}
+            <p>Tiếp tục tìm kiếm ;)</p>
+            <a class="draggable-reset-button btn standard-button">THÊM HỒ SƠ</a>
+            {% else %}
+            <p>Không còn thành viên nào để tìm kiếm :(</p>
+            <a href="{% url 'search' %}" class="btn standard-button">TÌM KIẾM THAY VÀO ĐÓ</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% for profile, image_url in card_profiles %}
+    <div id="draggable-{{ profile.user.id }}" class="card draggable-card draggable ui-widget-content">
+        <div class="card-img" style="background-image: url({{ image_url }})"></div>
+        <div class="row username-container">
+            <p class="col-9 card-username">{{ profile.user.username }}</p>
+            <p class="col-3 card-age">{{ profile.age }}</p>
+        </div>
+        <p class="card-distance">{% if profile.distance > 150 %}150KM+{% else %}{{ profile.distance|floatformat:"0" }}KM{% endif %} Away</p>
+        <div class="row interaction-container">
+            <div class="col-4 grid-three-link"><i onclick="send_wink_draggable({{ profile.user.id }}, false)" class="far fa-times-circle grid-times"></i></div>
+            <div class="col-4 grid-three-link"><a href="{% url 'member_profile' profile.user.id %}"><i class="far fa-user grid-view"></i></a></div>
+            <div class="col-4 grid-three-link"><i onclick="send_wink_draggable({{ profile.user.id }}, true)" class="far fa-smile-wink grid-wink"></i></div>
+        </div>
+    </div>
+    <div>
+        <a class="draggable-view-profile draggable-{{ profile.user.id }}" href="{% url 'member_profile' profile.user.id %}">
+            <p>XEM HỒ SƠ CỦA {{ profile.user.username | upper }}</p>
+        </a>
+    </div>
+    {% empty %}
+        <p>Không tìm thấy hồ sơ để tìm kiếm nhanh</p>
+    {% endfor %}
+    <div class="right-quick-match-message">
+        <div class="text">KÉO PHẢI ĐỂ NHÁY MẮT</div>
+    </div>
+    <div id="droppable-right" class="ui-widget-header"></div>
+</div>
+
+<!-- Active recently profiles -->
+<div class="heading-hr"><span>HOẠT ĐỘNG GẦN ĐÂY</span></div>
+<div class="container-fluid">
+    <div class="row">
+        {% for profile, image_url in active_profiles %}
+        <div class="card-container col-sm-12 col-md-6 col-lg-3">
+            <div class="card four-cards">
+                <a class="card-link card-link-wrapper" href="{% url 'member_profile' profile.user.id %}">
+                    <div class="card-img four-cards" style="background-image: url({{ image_url }})"></div>
+                    <div class="row username-container">
+                        <p class="col-9 card-username">{{ profile.user.username }}</p>
+                        <p class="col-3 card-age">{{ profile.age }}</p>
+                    </div>
+                    <p class="card-distance">{% if profile.distance > 150 %}150KM+{% else %}{{ profile.distance|floatformat:"0" }}KM{% endif %} Away</p>
+                </a>
+                <div class="row interaction-container">
+                    <a class="card-link card-link-left" data-username="{{ profile.user.username }}" data-user-id="{{ profile.user.id }}"><i class="col-6 far fa-comment-alt grid-message"></i></a>
+                    <a class="card-link card-link-right" onclick="send_wink_grid_link({{ profile.user.id }})"><i class="col-6 far fa-smile-wink grid-wink"></i></a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p>Không tìm thấy hồ sơ hoạt động gần đây</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Profiles joined recently -->
+<div class="heading-hr"><span>NGƯỜI MỚI</span></div>
+<div class="container-fluid">
+    <div class="row">
+        {% for profile, image_url in newest_profiles %}
+        <div class="card-container col-sm-12 col-md-6 col-lg-3">
+            <div class="card four-cards">
+                <a class="card-link card-link-wrapper" href="{% url 'member_profile' profile.user.id %}">
+                    <div class="card-img four-cards" style="background-image: url({{ image_url }})"></div>
+                    <div class="row username-container">
+                        <p class="col-9 card-username">{{ profile.user.username }}</p>
+                        <p class="col-3 card-age">{{ profile.age }}</p>
+                    </div>
+                    <p class="card-distance">{% if profile.distance > 150 %}150KM+{% else %}{{ profile.distance|floatformat:"0" }}KM{% endif %} Away</p>
+                </a>
+                <div class="row interaction-container">
+                    <a class="card-link card-link-left" data-username="{{ profile.user.username }}" data-user-id="{{ profile.user.id }}"><i class="col-6 far fa-comment-alt grid-message"></i></a>
+                    <a class="card-link card-link-right" onclick="send_wink_grid_link({{ profile.user.id }})"><i class="col-6 far fa-smile-wink grid-wink"></i></a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p>Không tìm thấy hồ sơ mới</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<!-- Necessary for draggable and droppable elements -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $(".draggable").draggable({
+            containment: "parent",
+            revert: "invalid"
+        });
+        $("#droppable-left, #droppable-right").droppable({
+            drop: function(event, ui) {
+                ui.draggable.remove();
+            }
+        });
+    });
+</script>
+{% endblock %}

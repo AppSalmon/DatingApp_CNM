@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}{{ member.username }}'s Profile{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+    .profile-img-container {
+        position: relative;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .profile-img-draggable {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        min-height: 200px;
+    }
+    .profile-img {
+        max-width: 200px;
+        height: auto;
+        border-radius: 8px;
+        object-fit: cover;
+        display: block !important;
+        visibility: visible !important;
+    }
+    .icon-wink-form-container, .icon-edit-container {
+        position: absolute;
+        top: 10px;
+    }
+    .icon-wink-form-container {
+        left: 10px;
+    }
+    .icon-edit-container {
+        right: 10px;
+    }
+    .icon-wink-form-container button, .icon-edit-container button {
+        background-color: #C71585;
+        color: white;
+        border: none;
+        padding: 0.5rem;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .icon-wink-form-container button:hover, .icon-edit-container button:hover {
+        background-color: #DA70D6;
+    }
+    .profile-card-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    .profile-username h2 {
+        color: #C71585;
+        margin-bottom: 0.5rem;
+    }
+    .card-container {
+        margin-bottom: 1.5rem;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    .standard-table td {
+        padding: 0.5rem;
+    }
+    .standard-table-feature {
+        font-weight: bold;
+        color: #333;
+    }
+    .card-form-container h3 {
+        color: #C71585;
+        margin-bottom: 1rem;
+    }
+    .submit-success {
+        background-color: #C71585;
+        color: white;
+        padding: 0.75rem;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+    .submit-success:hover {
+        background-color: #DA70D6;
+    }
+    .disabled-card {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .debug-text {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+
+<!-- Profile images -->
+<div class="profile-img-container">
+    <div class="icon-wink-form-container {% if current_user %}disabled-wink-container{% endif %}">
+        <button id="wink-receiver-input" {% if not current_user %}onclick="send_wink_grid_link({{ member.id }})" {% endif %}><i class="far fa-smile-wink"></i></button>
+    </div>
+    <!-- Edit profile button -->
+    {% if request.user.id == member.id %}
+    <div class="icon-edit-container">
+        <form action="{% url 'create_profile' %}">
+            <button><i class="far fa-edit"></i></button>
+        </form>
+    </div>
+    {% endif %}
+    <!-- Profile images -->
+    <div class="profile-img-draggable">
+        <p class="debug-text">Debug: User ID: {{ member.id }}, Username: {{ member.username }}</p>
+        {% with images=member.profile_images.all %}
+            {% if images %}
+                <p class="debug-text">Debug: Found {{ images.count }} images</p>
+                {% for image in images %}
+                    <p class="debug-text">Debug: Image {{ image.id }} - {{ image.is_verified }} - {{ image.image.url }}</p>
+                    {% if image.is_verified == "APPROVED" or request.user.id == member.id %}
+                        <img class="profile-img" src="{{ image.image.url }}" alt="Ảnh hồ sơ {{ member.username }}">
+                    {% else %}
+                        <img class="profile-img" src="/media/avatars/default_avt.png" alt="Ảnh mặc định">
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p class="debug-text">Debug: No images found</p>
+                <img class="profile-img" src="/media/avatars/default_avt.png" alt="Ảnh mặc định">
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+<section class="profile-card-container container">
+    <div class="row">
+        <div class="col-sm-12 profile-username">
+            <h2>{{ member.username }}</h2>
+            <h3>{{ member.profile.age }}</h3>
+        </div>
+        <div class="col-sm-12 col-md-7">
+            <!-- Member bio -->
+            <div class="card-container">
+                <div class="card">
+                    <p>
+                        {% if member.profile.is_verified == "APPROVED" %}
+                            {{ member.profile.bio }}
+                        {% else %}
+                            Đội ngũ xác minh của chúng tôi đang xem xét thành viên này. Hồ sơ sẽ sớm được hiển thị.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% if member.profile.is_verified == "APPROVED" %}
+            <div class="card-container">
+                <div class="card">
+                    <!-- Member details -->
+                    <table class="standard-table">
+                        <tr><td>Vị trí:</td><td class="standard-table-feature">{{ member.profile.location }}</td></tr>
+                        <tr><td>Giới tính:</td><td class="standard-table-feature">{{ member.profile.gender|title }}</td></tr>
+                        <tr><td>Độ dài tóc:</td><td class="standard-table-feature">{{ member.profile.hair_length|title }}</td></tr>
+                        <tr><td>Màu tóc:</td><td class="standard-table-feature">{{ member.profile.hair_colour|title }}</td></tr>
+                        <tr><td>Dân tộc:</td><td class="standard-table-feature">{{ member.profile.ethnicity|title }}</td></tr>
+                        <tr><td>Tình trạng hôn nhân:</td><td class="standard-table-feature">{{ member.profile.relationship_status|title }}</td></tr>
+                        <tr><td>Học vấn:</td><td class="standard-table-feature">{{ member.profile.education|title }}</td></tr>
+                        <tr><td>Chiều cao:</td><td class="standard-table-feature">{{ height }}</td></tr>
+                        <tr><td>Kiểu cơ thể:</td><td class="standard-table-feature">{{ member.profile.body_type|title }}</td></tr>
+                        <tr><td>Con cái:</td><td class="standard-table-feature">{% if member.profile.children %}Có{% else %}Không{% endif %}</td></tr>
+                        <tr><td>Tìm kiếm:</td><td class="standard-table-feature">{% if member.profile.looking_for == "BOTH" %}Nam & Nữ{% else %}{{ member.profile.looking_for|title }}{% endif %}</td></tr>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-sm-12 col-md-5">
+            <!-- Send message form -->
+            <div class="card-container">
+                <div class="{% if current_user %}disabled-card{% endif %} card-form card">
+                    <div class="card-form-container">
+                        <h3>Gửi tin nhắn đến {{ member.username }}</h3>
+                        <hr>
+                        <form class="standard-form" method="POST">
+                            {% csrf_token %}
+                            {% if current_user %}
+                                <label for="id_message_content">Nội dung tin nhắn:</label>
+                                <textarea disabled cols="40" rows="10" id="id_message_content" maxlength="500"></textarea>
+                                <input type="submit" disabled value="GỬI" class="disabled-button submit-wide submit-success" name="message_submit" />
+                            {% else %}
+                                {{ message_form }}
+                                <input type="submit" value="GỬI" class="submit-wide submit-success" name="message_submit" />
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<!-- JavaScript for draggable elements -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $(".profile-img-draggable").sortable({
+            containment: "parent",
+            tolerance: "pointer",
+            cursor: "move"
+        });
+    });
+</script>
+{% endblock %}
