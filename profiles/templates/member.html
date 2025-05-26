@@ -157,7 +157,7 @@
             <div class="card-container">
                 <div class="card">
                     <!-- Member details -->
-                    <table class="standard-table">
+                    <!-- <table class="standard-table">
                         <tr><td>Vị trí:</td><td class="standard-table-feature">{{ member.profile.location }}</td></tr>
                         <tr><td>Giới tính:</td><td class="standard-table-feature">{{ member.profile.gender|title }}</td></tr>
                         <tr><td>Độ dài tóc:</td><td class="standard-table-feature">{{ member.profile.hair_length|title }}</td></tr>
@@ -169,6 +169,20 @@
                         <tr><td>Kiểu cơ thể:</td><td class="standard-table-feature">{{ member.profile.body_type|title }}</td></tr>
                         <tr><td>Con cái:</td><td class="standard-table-feature">{% if member.profile.children %}Có{% else %}Không{% endif %}</td></tr>
                         <tr><td>Tìm kiếm:</td><td class="standard-table-feature">{% if member.profile.looking_for == "BOTH" %}Nam & Nữ{% else %}{{ member.profile.looking_for|title }}{% endif %}</td></tr>
+                    </table>
+                     -->
+                    <table class="standard-table">
+                        <tr><td>Vị trí:</td><td class="standard-table-feature">{{ member.profile.location }}</td></tr>
+                        <tr><td>Giới tính:</td><td class="standard-table-feature">{{ member.profile.get_gender_display }}</td></tr>
+                        <tr><td>Độ dài tóc:</td><td class="standard-table-feature">{{ member.profile.get_hair_length_display }}</td></tr>
+                        <tr><td>Màu tóc:</td><td class="standard-table-feature">{{ member.profile.get_hair_colour_display }}</td></tr>
+                        <!-- <tr><td>Dân tộc:</td><td class="standard-table-feature">{{ member.profile.get_ethnicity_display }}</td></tr> --> <!-- Đã bị comment trong mã gốc -->
+                        <tr><td>Tình trạng hôn nhân:</td><td class="standard-table-feature">{{ member.profile.get_relationship_status_display }}</td></tr>
+                        <tr><td>Học vấn:</td><td class="standard-table-feature">{{ member.profile.get_education_display }}</td></tr>
+                        <tr><td>Chiều cao:</td><td class="standard-table-feature">{{ member.profile.height }} cm</td></tr>
+                        <tr><td>Kiểu cơ thể:</td><td class="standard-table-feature">{{ member.profile.get_body_type_display }}</td></tr>
+                        <tr><td>Con cái:</td><td class="standard-table-feature">{% if member.profile.children %}Có{% else %}Không{% endif %}</td></tr>
+                        <tr><td>Tìm kiếm:</td><td class="standard-table-feature">{% if member.profile.looking_for == "BOTH" %}Nam & Nữ{% else %}{{ member.profile.get_looking_for_display }}{% endif %}</td></tr>
                     </table>
                 </div>
             </div>

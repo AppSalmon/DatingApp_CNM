@@ -28,6 +28,7 @@ urlpatterns = [
     path('my-account/', include(account_urls)),  # Account URLs
     path('search/', include(search_urls)),  # Search URLs
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),  # Phục vụ file media
+    path("chatbot/", include("chatbot.urls")),
 ]
 
 # Thêm static và media URLs trong môi trường DEBUG

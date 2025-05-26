@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'checkout',
     'account',
     'search',
+    "chatbot",  # Ứng dụng chatbot
 ]
 
 # Middleware
@@ -87,11 +88,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Europe/London'
+# # Internationalization
+# LANGUAGE_CODE = 'en-us'
+# TIME_ZONE = 'Europe/London'
+# USE_I18N = True
+# USE_L10N = True
+# USE_TZ = True
+
+# Ngôn ngữ và múi giờ
+LANGUAGE_CODE = "vi-vn"
+TIME_ZONE = "Asia/Ho_Chi_Minh"
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 # Static files
@@ -123,3 +130,7 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 DATE_FORMAT = "d-m-Y"
 DATE_INPUT_FORMATS = ['%d/%m/%Y']
 USE_L10N = False
+
+
+# Gemini API Key
+GEMINI_API_KEY = 'AIzaSyC1qyR2i8hISRF_WTc_wfQhr4lDyORbgQ8'
