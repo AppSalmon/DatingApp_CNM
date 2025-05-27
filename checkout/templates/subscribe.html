@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Đăng ký Premium{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+    .subscribe-page-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 15px;
+        font-family: 'Arial', sans-serif;
+    }
+    .subscribe-page-subtitle {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .subscribe-page-subtitle p {
+        font-size: 1.2rem;
+        margin: 0.5rem 0;
+        color: #333;
+    }
+    .subscribe-page-subtitle i {
+        color: #C71585;
+        margin-right: 0.5rem;
+    }
+    .subscribe-page-modal-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    .subscribe-page-modal {
+        transition: transform 0.3s ease;
+    }
+    .subscribe-page-modal:hover {
+        transform: translateY(-5px);
+    }
+    .subscribe-page-card {
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        background-color: #fff;
+    }
+    .subscribe-page-card-container {
+        text-align: center;
+        padding: 1.5rem;
+    }
+    .subscribe-page-incentive-badge {
+        position: absolute;
+        top: -10px;
+        right: 10px;
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+        background-color: #DA70D6;
+        color: white;
+        border-radius: 20px;
+    }
+    .subscribe-page-button {
+        width: 100%;
+        padding: 0.75rem;
+        font-weight: bold;
+        border-radius: 5px;
+        background-color: #C71585;
+        border-color: #C71585;
+        color: white;
+        transition: background-color 0.3s;
+    }
+    .subscribe-page-button:hover {
+        background-color: #DA70D6;
+        border-color: #DA70D6;
+    }
+    .subscribe-page-button.active {
+        background-color: #DA70D6;
+        border-color: #DA70D6;
+    }
+    .subscribe-page-price {
+        font-size: 1.8rem;
+        color: #C71585;
+        margin: 1rem 0;
+    }
+    .subscribe-page-card-form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .subscribe-page-billing-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+    .subscribe-page-total {
+        margin-top: 1.5rem;
+        text-align: right;
+    }
+    .subscribe-page-submit {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #C71585;
+        border: none;
+        color: white;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+    .subscribe-page-submit:hover {
+        background-color: #DA70D6;
+    }
+    .subscribe-page-terms {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 1rem;
+        text-align: center;
+    }
+    .subscribe-page-hidden-plan {
+        display: none;
+    }
+    .subscribe-page-alert {
+        margin-bottom: 1rem;
+    }
+</style>
+
+<section class="subscribe-page-container">
+    <!-- Incentives to subscribe -->
+    <h1 class="quick-match-heading text-center mb-4">THAM GIA PREMIUM</h1>
+    <div class="subscribe-page-subtitle">
+        <p><i class="far fa-comment-alt"></i> GỬI TIN NHẮN KHÔNG GIỚI HẠN</p>
+        <p><i class="fas fa-eye"></i> XEM AI ĐÃ XEM HỒ SƠ CỦA BẠN</p>
+        <p><i class="far fa-star"></i> TRẢI NGHIỆM TÍNH NĂNG MỚI ĐẦU TIÊN</p>
+    </div>
+
+    <!-- Plan options -->
+    <div class="subscribe-page-modal-container">
+        <div class="subscribe-page-modal modal-content card-container">
+            <div class="subscribe-page-card">
+                <div class="subscribe-page-card-container">
+                    <h3>1 THÁNG</h3>
+                    <hr>
+                    <h4 class="subscribe-page-price">199.000đ<span>/tháng</span></h4>
+                    <p class="subscribe-page-subtitle">Thanh toán 199.000đ mỗi tháng</p>
+                    <button data-price="£24.99" data-plan="plan_F5eyGdYCvZPtON" class="subscribe-page-button btn">CHỌN</button>
+                </div>
+            </div>
+        </div>
+        <div class="subscribe-page-modal modal-content card-container">
+            <div class="subscribe-page-card">
+                <div class="subscribe-page-card-container">
+                    <h3>3 THÁNG</h3>
+                    <div class="subscribe-page-incentive-badge">PHỔ BIẾN NHẤT</div>
+                    <hr>
+                    <h4 class="subscribe-page-price">149.000đ<span>/tháng</span></h4>
+                    <p class="subscribe-page-subtitle">Thanh toán 447.000đ mỗi 3 tháng</p>
+                    <button data-price="£44.99" data-plan="plan_F5ey2nnZwy5v8Q" class="subscribe-page-button btn active">CHỌN</button>
+                </div>
+            </div>
+        </div>
+        <div class="subscribe-page-modal modal-content card-container">
+            <div class="subscribe-page-card">
+                <div class="subscribe-page-card-container">
+                    <h3>6 THÁNG</h3>
+                    <div class="subscribe-page-incentive-badge">GIÁ TỐT NHẤT</div>
+                    <hr>
+                    <h4 class="subscribe-page-price">99.000đ<span> /tháng</span></h4>
+                    <p class="subscribe-page-subtitle">Thanh toán 594.000đ mỗi 6 tháng</p>
+                    <button data-price="£74.99" data-plan="plan_F5eyNlWXHig7YB" class="subscribe-page-button btn">CHỌN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="subscribe-page-card-form">
+    <div class="subscribe-page-card">
+        <div class="subscribe-page-card-container">
+            <!-- Billing information form -->
+            <h3 class="subscribe-page-billing-title">Thông tin thanh toán</h3>
+            <hr>
+            {% if messages %}
+                <div class="subscribe-page-alert alert alert-danger">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form class="subscribe-page-form" role="form" method="POST" id="subscription_form" action="{% url 'subscribe' %}">
+                {% csrf_token %}
+                {% for field in order_form.hidden_fields %}
+                    {{ field }}
+                {% endfor %}
+                {% for field in order_form.visible_fields %}
+                    <div class="mb-3 {% if field.name == 'plans' %}subscribe-page-hidden-plan{% endif %}">
+                        <label for="id_{{ field.name }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% endfor %}
+                <!-- Total -->
+                <div class="subscribe-page-total">
+                    <hr>
+                    <h4>Tóm tắt đơn hàng</h4>
+                    <p>GÓI ĐÃ CHỌN: <span class="plan-total">3 THÁNG</span></p>
+                    <!-- <p>TỔNG CỘNG: <span class="cost-total">447.000đ</span></p> -->
+                </div>
+                <div class="subscribe-page-total-submit">
+                    <input type="submit" class="subscribe-page-submit" value="TIẾP TỤC" name="message_submit" />
+                </div>
+                <div class="subscribe-page-terms">
+                    <p>Bằng cách nhấn TIẾP TỤC, bạn đồng ý với Điều khoản & Dịch vụ và Chính sách bảo mật của chúng tôi. Gói đăng ký bắt đầu từ ngày thanh toán và được thanh toán theo chu kỳ 1 tháng, 3 tháng hoặc 6 tháng. Bạn có thể hủy đăng ký bất kỳ lúc nào trước ngày thanh toán tiếp theo.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const buttons = document.querySelectorAll('.subscribe-page-button');
+        const planTotal = document.querySelector('.plan-total');
+        const costTotal = document.querySelector('.cost-total');
+        const planInput = document.querySelector('#id_plans');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                buttons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                const price = this.getAttribute('data-price');
+                const plan = this.getAttribute('data-plan');
+                const planText = this.parentElement.querySelector('h3').textContent;
+
+                planTotal.textContent = planText;
+                costTotal.textContent = price;
+                planInput.value = plan;
+            });
+        });
+    });
+</script>
+{% endblock %}

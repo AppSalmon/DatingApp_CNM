@@ -1,0 +1,333 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="shortcut icon" type="image/png" href="{% static 'temp/favicon.png' %}" />
+    {% block css %}{% endblock %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+    <title>{% block page_title %}{% endblock %}</title>
+</head>
+<body>
+    <!--Page ref used in JS file-->
+    {% if page_ref %}
+    <div id="page-ref" data-page-ref="{{page_ref}}"></div>
+    {% endif %}
+    <div id="page-container">
+        <!--Navbar-->
+        <nav class="navbar navbar-expand-lg">
+            <a class="nav-icon brand-icon" href="{% url 'index' %}">
+                <i class="far fa-heart"></i>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"><i class="fas fa-bars"></i></span>
+            </button>
+            <div class="navbar-options-hidden collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="d-lg-none d-xl-none navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="{% if new_message%}new-engagement{%endif%} nav-link" href="{% url 'chat_home' %}">
+                            <p>CHAT</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="{% if new_wink%}new-engagement{%endif%} nav-link" href="{% url 'winks' %}">
+                            <p>WINKS</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="{% if new_view%}new-engagement{%endif%} nav-link" href="{% url 'views' %}">
+                            <p>VIEWS</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'member_profile' request.user.id %}">
+                            <p>PROFILE</p>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="d-none d-lg-flex nav navbar-nav">
+                    <li class="nav-item nav-icon">
+                        <a class="{% if new_message %}new-engagement{%endif%}" href="{% url 'chat_home' %}"><i class="far fa-comment-alt"></i>
+                            <p>Chat</p>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-icon">
+                        <a class="{% if new_wink %}new-engagement{%endif%}" href="{% url 'winks' %}"><i class="far fa-smile-wink"></i>
+                            <p>Nháy mắt</p>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-icon">
+                        <a class="{% if new_view %}new-engagement{%endif%}" href="{% url 'views' %}"><i class="fas fa-eye"></i>
+                            <p>Lượt xem</p>
+                        </a>
+                    </li>
+                    <li class="profile-icon nav-item nav-icon">
+                        {% if request.user.id %}
+                        <a href="{% url 'member_profile' request.user.id %}"><i class="far fa-user"></i>
+                            <p>Thông tin</p>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'register' %}"><i class="far fa-user"></i>
+                            <p>Profile</p>
+                        </a>
+                        {% endif %}
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">TRANG CHỦ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'search' %}">TÌM KIẾM</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'account' %}">TÀI KHOẢN</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!--Notifications-->
+        <div class="toast-container">
+            {% for message in messages %}
+            <div data-delay="4000" class="toast fade show">
+                <div class="toast-header">
+                    <strong class="mr-auto"><i class="fa fa-globe"></i> Chú ý</strong>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">×</button>
+                </div>
+                <div class="toast-body">
+                    {{ message }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% block content %}{% endblock %}
+        <!--Footer-->
+        <div class="footer-spacer"></div>
+        <footer class="footer-curve">
+            <div class="row footer-row-bottom">
+                <div class="col-xs-12 col-md-6">
+                    <ul>
+                        <li><a href="https://github.com/AppSalmon/DatingApp_CNM" target="_blank"><i class="fab fa-github"></i></a></li>
+                    </ul>
+                    <p class="brand-footer">MỘT ĐỒ ÁN CUỐI KÌ CỦA NHÓM 9 MÔN CÔNG NGHỆ MỚI TRONG PHÁT TRIỂN ỨNG DỤNG</p>
+                </div>
+                <div class="footer-info-text col-xs-12 col-md-6">
+                    <p>NGUYỄN KHẮC LUẬT - 21099741<br>ĐÀO XUÂN HOÀNG TUẤN - 21114651<br>WEB APP HẸN HÒ</p>
+                </div>
+            </div>
+            <section class="d-none d-md-block">
+                <svg version="1.1" id="footer-curve-svg" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet" viewBox="0 0 640 130"
+                    width="640" height="130">
+                    <defs>
+                        <path
+                            d="M248.72 56.47C284.19 64.11 321.11 61.52 355.17 49.02C388.01 36.96 413.19 27.72 440.73 17.61C490.05 -0.49 545.09 6.38 588.44 36.07C595.31 40.78 612.5 52.55 640 71.38L640 130L0 130L0 71.38C2.83 69.8 4.6 68.82 5.31 68.42C59.03 38.51 121.79 29.15 181.89 42.09C206.12 47.3 216.7 49.58 248.72 56.47Z"
+                            id="g1Bk4pntKy"></path>
+                        <linearGradient id="gradientagyyXazTG" gradientUnits="userSpaceOnUse" x1="650.21" y1="53.81"
+                            x2="50.43" y2="113.21">
+                            <stop style="stop-color: #7c2ae8;stop-opacity: 1" offset="0%"></stop>
+                            <stop style="stop-color: #ff8b80;stop-opacity: 1" offset="100%"></stop>
+                        </linearGradient>
+                    </defs>
+                    <g>
+                        <use xlink:href="#g1Bk4pntKy" opacity="1" fill="url(#gradientagyyXazTG)"></use>
+                        <g>
+                            <use xlink:href="#g1Bk4pntKy" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1"
+                                stroke-opacity="0"></use>
+                        </g>
+                    </g>
+                </svg>
+            </section>
+        </footer>
+        <!-- Floating Chatbot Button and Window -->
+        <div class="chatbot-container">
+            <button id="chatbot-toggle" class="chatbot-button">
+                <i class="fas fa-comment"></i>
+            </button>
+            <div id="chatbot-window" class="chatbot-window" style="display: none;">
+                <div class="chatbot-header">
+                    <h5>Chat với Bot</h5>
+                    <button id="chatbot-close" class="chatbot-close">×</button>
+                </div>
+                <div class="chatbot-body" id="chatbot-messages">
+                    <!-- Tin nhắn sẽ được thêm động bằng JavaScript -->
+                </div>
+                <div class="chatbot-footer">
+                    <form id="chatbot-form" class="chatbot-form">
+                        {% csrf_token %}
+                        <input type="text" id="chatbot-input" placeholder="Nhập tin nhắn..." required>
+                        <button type="submit" class="chatbot-send"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- CSS cho chatbot -->
+        <style>
+            .chatbot-container {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 1000;
+            }
+            .chatbot-button {
+                background-color: #C71585;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+                cursor: pointer;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+            .chatbot-button:hover {
+                background-color: #DA70D6;
+            }
+            .chatbot-window {
+                width: 400px;
+                height: 600px;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .chatbot-header {
+                background-color: #C71585;
+                color: white;
+                padding: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .chatbot-close {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+            }
+            .chatbot-body {
+                flex: 1;
+                padding: 10px;
+                overflow-y: auto;
+                background: #f8f9fa;
+            }
+            .chatbot-message {
+                margin: 5px 0;
+                padding: 8px;
+                border-radius: 8px;
+                max-width: 80%;
+            }
+            .chatbot-message.user {
+                background: #C71585;
+                color: white;
+                margin-left: auto;
+            }
+            .chatbot-message.bot {
+                background: #e9ecef;
+                color: #333;
+            }
+            .chatbot-message.bot a {
+                color: #C71585;
+                text-decoration: none;
+            }
+            .chatbot-message.bot a:hover {
+                color: #DA70D6;
+                text-decoration: underline;
+            }
+            .chatbot-footer {
+                padding: 10px;
+                background: #fff;
+                border-top: 1px solid #ddd;
+            }
+            .chatbot-form {
+                display: flex;
+                gap: 10px;
+            }
+            .chatbot-input {
+                flex: 1;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            .chatbot-send {
+                background: #C71585;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            .chatbot-send:hover {
+                background: #DA70D6;
+            }
+        </style>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- Thư viện marked.js để render Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- JavaScript cho chatbot -->
+    <script>
+        $(document).ready(function() {
+            // Bật/tắt cửa sổ chatbot
+            $('#chatbot-toggle, #chatbot-close').click(function() {
+                $('#chatbot-window').toggle();
+            });
+
+            // Xử lý gửi tin nhắn
+            $('#chatbot-form').submit(function(e) {
+                e.preventDefault();
+                var message = $('#chatbot-input').val();
+                if (!message) return;
+
+                // Thêm tin nhắn người dùng
+                $('#chatbot-messages').append(
+                    '<div class="chatbot-message user">' + $('<div>').text(message).html() + '</div>'
+                );
+                $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
+                $('#chatbot-input').val('');
+
+                // Gửi tin nhắn đến backend
+                $.ajax({
+                    url: "{% url 'chatbot:chatbot_view' %}",
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        message: message
+                    }),
+                    headers: {
+                        'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(response) {
+                        // Render Markdown thành HTML
+                        var renderedMessage = marked.parse(response.reply);
+                        $('#chatbot-messages').append(
+                            '<div class="chatbot-message bot">' + renderedMessage + '</div>'
+                        );
+                        $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
+                    },
+                    error: function(xhr) {
+                        var errorMsg = xhr.responseJSON && xhr.responseJSON.reply ? xhr.responseJSON.reply : 'Đã có lỗi, vui lòng thử lại!';
+                        $('#chatbot-messages').append(
+                            '<div class="chatbot-message bot">' + $('<div>').text(errorMsg).html() + '</div>'
+                        );
+                        $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
+                    }
+                });
+            });
+        });
+    </script>
+    {% block js %}
+    {% endblock %}
+    <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
